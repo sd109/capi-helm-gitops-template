@@ -30,7 +30,7 @@ spec:
   chartRef:
     kind: HelmChart
     name: openstack-cluster
-  releaseName: podinfo
+  releaseName: capi-cluster-test
   install:
     remediation:
       retries: 3
