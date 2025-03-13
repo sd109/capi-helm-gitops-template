@@ -1,2 +1,4 @@
 resources:
   - config.yaml
+  - credentials.yaml
+  - helmrelease.yaml

@@ -5,4 +5,51 @@ metadata:
   name: cluster-config
 data:
   values.yaml: |
-    test: 1
+    # Must match the name of the (sealed) secret in credentials.yaml
+    cloudCredentialsSecretName: cluster-credentials
+
+    kubernetesVersion: 1.31.2
+
+    # An image with the required software installed at the target version
+    machineImage: ubuntu-jammy-kube-v1.31.2-241024-1420
+
+    # The name of the SSH keypair to inject into cluster machines
+    machineSSHKeyName: scott-key
+
+    clusterNetworking:
+      externalNetworkId: 085331e5-70ae-4215-9cd2-7acf718aa858
+      internalNetwork:
+        networkFilter:
+          name: portal-internal
+
+    controlPlane:
+      # The flavor to use for control plane machines
+      # It is recommended to use a flavour with at least 2 CPU, 4GB RAM
+      machineFlavor: general.v1.4cpu
+      machineCount: 1
+
+    # A list of worker node groups for the cluster
+    nodeGroups:
+      - # The name of the node group
+        name: md-0
+        # The flavor to use for the node group machines
+        machineFlavor: general.v1.4cpu
+        # The number of machines in the group
+        machineCount: 1
+
+    apiServer:
+      loadBalancerProvider: ovn
+
+    addons:
+      ingress:
+        enabled: true
+      openstack:
+        enabled: true
+        cloudConfig:
+          LoadBalancer:
+            manage-security-groups: true
+            lb-provider: ovn
+            lb-method: SOURCE_IP_PORT
+        ccm:
+          chart:
+            version: 2.32.0

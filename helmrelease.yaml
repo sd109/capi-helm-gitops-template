@@ -1,0 +1,48 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: capi-helm-charts
+spec:
+  interval: 5m0s
+  url: https://azimuth-cloud.github.io/capi-helm-charts
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmChart
+metadata:
+  name: openstack-cluster
+spec:
+  interval: 5m0s
+  chart: openstack-cluster
+  reconcileStrategy: ChartVersion
+  sourceRef:
+    kind: HelmRepository
+    name: capi-helm-charts
+  version: '0.14.*'
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: capi-cluster-test
+spec:
+  interval: 10m
+  timeout: 5m
+  chartRef:
+    kind: HelmChart
+    name: openstack-cluster
+  releaseName: podinfo
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  test:
+    enable: false
+  valuesFrom:
+    - kind: ConfigMap
+      name: cluster-config
+      valuesKey: values.yaml
+    - kind: Secret
+      name: cluster-credentials
+      valuesKey: clouds.yaml
